@@ -10,23 +10,38 @@ server.on('request', onRequest)
 server.listen(port, () => console.log('Listening on '+port))
 
 function onRequest(req, res) {
-  fs.readdir(root, {withFileTypes:true}, (err, dirents) => {
-    res.setHeader('Content-Type', 'text/html')
+  let url, path;
+  try {
+    // base doesn't matter here; we just need to parse the path
+    url = new URL(req.url, 'http://localhost')
+    path = root + url.pathname
+  } catch (err) {
+    return handleErr(err, res)
+  }
+  const opts = {withFileTypes:true}
+  fs.readdir(path, opts, (err, dirents) => {
     if (err) {
-      console.error(err)
-      res.statusCode = 500
-      res.end(htmlTemplate(`<p>${err.message}</p>`))
-      return
+      if (err.code === 'ENOENT') res.statusCode = 404
+      return handleErr(err, res)
     }
-    res.end(renderDir(dirents))
+    res.setHeader('Content-Type', 'text/html')
+    res.end(renderDir(dirents, url.pathname))
   })
 }
 
-function renderDir(dirents) {
+function renderDir(dirents, urlPath) {
   return htmlTemplate(dirents.reduce(reducer, ''))
 
   function reducer(prev, dirent) {
-    return `${prev}<p>${dirent.name}</p>\n`
+    let result = prev + '<p>'
+    if (dirent.isDirectory()) {
+      // make it a link
+      result+=`<a href="${urlPath}/${dirent.name}">`
+    }
+    result+=dirent.name
+    if (dirent.isDirectory()) result+='</a>'
+    result+='</p>\n'
+    return result
   }
 }
 
@@ -48,4 +63,11 @@ function htmlTemplate(content) {
 ${content}
   </body>
 </html>`
+}
+
+function handleErr(err, res) {
+  console.error(err)
+  if (res.statusCode === 200) res.statusCode = 500
+  res.setHeader('Content-Type', 'text/html')
+  res.end(htmlTemplate(`<p>${err.message}</p>`))
 }
