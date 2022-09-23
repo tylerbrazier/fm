@@ -4,70 +4,64 @@ const os = require('node:os')
 
 const port = 8080
 const root = os.homedir()
+const filesPrefix = '/files'
+const staticDir = __dirname+'/static'
 
 const server = http.createServer()
 server.on('request', onRequest)
 server.listen(port, () => console.log('Listening on '+port))
 
 function onRequest(req, res) {
-  let url, path;
   try {
     // base doesn't matter here; we just need to parse the path
-    url = new URL(req.url, 'http://localhost')
-    path = root + url.pathname
+    var url = new URL(req.url, 'http://localhost')
   } catch (err) {
     return handleErr(err, res)
   }
-  const opts = {withFileTypes:true}
-  fs.readdir(path, opts, (err, dirents) => {
-    if (err) {
-      if (err.code === 'ENOENT') res.statusCode = 404
-      return handleErr(err, res)
-    }
-    res.setHeader('Content-Type', 'text/html')
-    res.end(renderDir(dirents, url.pathname))
-  })
-}
-
-function renderDir(dirents, urlPath) {
-  return htmlTemplate(dirents.reduce(reducer, ''))
-
-  function reducer(prev, dirent) {
-    let result = prev + '<p>'
-    if (dirent.isDirectory()) {
-      // make it a link
-      result+=`<a href="${urlPath}/${dirent.name}">`
-    }
-    result+=dirent.name
-    if (dirent.isDirectory()) result+='</a>'
-    result+='</p>\n'
-    return result
+  if (!url.pathname || url.pathname === '/') {
+    sendStatic('/index.html', res)
+  } else if (url.pathname.startsWith(filesPrefix)) {
+    const path = root+url.pathname.slice(filesPrefix.length)
+    ls(path, res)
+  } else {
+    sendStatic(url.pathname, res)
   }
 }
 
-function htmlTemplate(content) {
-  // https://validator.w3.org/
-  return `\
-<!DOCTYPE html>
-<html lang="en-US">
-  <head>
-    <meta charset="utf-8">
-    <!--
-    https://developer.mozilla.org/en-US/docs/Mozilla/Mobile/Viewport_meta_tag
-    https://developers.google.com/web/fundamentals/design-and-ux/responsive/
-    -->
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>fm</title>
-  </head>
-  <body>
-${content}
-  </body>
-</html>`
+function sendStatic(filepath, res) {
+  fs.readFile(staticDir+filepath, (err,data) => {
+    if (err) return handleErr(err, res)
+    if (filepath.endsWith('.html')) {
+      res.setHeader('Content-Type', 'text/html')
+    } else if (filepath.endsWith('.css')) {
+      res.setHeader('Content-Type', 'text/css')
+    } else if (filepath.endsWith('.js')) {
+      res.setHeader('Content-Type', 'application/javascript')
+    }
+    res.end(data)
+  })
+}
+
+function ls(path, res) {
+  const opts = {withFileTypes:true}
+  fs.readdir(path, opts, (err, dirents) => {
+    if (err) return handleErr(err, res)
+    const files = dirents.map(d => {
+      if (d.isDirectory()) return d.name+'/'
+      else return d.name
+    })
+    sendJson(files, res)
+  })
 }
 
 function handleErr(err, res) {
   console.error(err)
-  if (res.statusCode === 200) res.statusCode = 500
-  res.setHeader('Content-Type', 'text/html')
-  res.end(htmlTemplate(`<p>${err.message}</p>`))
+  if (err.code === 'ENOENT') res.statusCode = 404
+  else if (res.statusCode === 200) res.statusCode = 500
+  sendJson({error:err.message}, res)
+}
+
+function sendJson(obj, res) {
+  res.setHeader('Content-Type', 'application/json')
+  res.end(JSON.stringify(obj))
 }
