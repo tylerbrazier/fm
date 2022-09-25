@@ -1,0 +1,10 @@
+#error {
+  background-color: red;
+  color: white;
+  padding: 3px;
+  overflow: hidden; /* keeps the button in the div properly */
+  display: none; /* initially hidden */
+}
+#error > button {
+  float: right;
+}

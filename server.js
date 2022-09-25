@@ -63,5 +63,7 @@ function handleErr(err, res) {
 
 function sendJson(obj, res) {
   res.setHeader('Content-Type', 'application/json')
-  res.end(JSON.stringify(obj))
+  const json = JSON.stringify(obj)
+  // console.debug(json)
+  res.end(json)
 }

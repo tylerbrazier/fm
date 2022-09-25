@@ -11,4 +11,4 @@ when that's supported on mobile.
 ## Developing
 
 	npx nodemon server.js
-	npx eslint server.js
+	npx eslint .
