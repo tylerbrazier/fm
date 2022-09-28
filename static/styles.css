@@ -2,8 +2,12 @@
   background-color: red;
   color: white;
   padding: 3px;
-  overflow: hidden; /* keeps the button in the div properly */
   display: none; /* initially hidden */
+  position: sticky;
+  top: 0;
+  /* define overflow so the floating button stays in the div
+  https://stackoverflow.com/q/16041229 */
+  overflow: hidden;
 }
 #error > button {
   float: right;

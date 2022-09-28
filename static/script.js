@@ -38,7 +38,6 @@ function handleErr(err) {
   errDiv.appendChild(text)
   errDiv.appendChild(x)
   errDiv.style.display = 'block' // show it
-  scroll(0,0)
 }
 
 function filesDiv() {
