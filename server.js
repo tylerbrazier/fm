@@ -19,25 +19,21 @@ function onRequest(req, res) {
     return handleErr(err, res)
   }
   if (!url.pathname || url.pathname === '/') {
-    sendStatic('/index.html', res)
+    sendFile(staticDir+'/index.html', res)
   } else if (url.pathname.startsWith(filesPrefix)) {
     const path = root+url.pathname.slice(filesPrefix.length)
-    ls(path, res)
+    if (path.endsWith('/')) ls(path, res)
+    else sendFile(path, res)
   } else {
-    sendStatic(url.pathname, res)
+    sendFile(staticDir+url.pathname, res)
   }
 }
 
-function sendStatic(filepath, res) {
-  fs.readFile(staticDir+filepath, (err,data) => {
+function sendFile(filepath, res) {
+  fs.readFile(filepath, (err,data) => {
     if (err) return handleErr(err, res)
-    if (filepath.endsWith('.html')) {
-      res.setHeader('Content-Type', 'text/html')
-    } else if (filepath.endsWith('.css')) {
-      res.setHeader('Content-Type', 'text/css')
-    } else if (filepath.endsWith('.js')) {
-      res.setHeader('Content-Type', 'application/javascript')
-    }
+    const type = getContentType(filepath)
+    if (type) res.setHeader('Content-Type', type)
     res.end(data)
   })
 }
@@ -66,4 +62,41 @@ function sendJson(obj, res) {
   const json = JSON.stringify(obj)
   // console.debug(json)
   res.end(json)
+}
+
+// returns null if you shouldn't set Content-Type
+// https://httpwg.org/specs/rfc9110.html#field.content-type
+function getContentType(filename) {
+  const ext = filename.split('.').pop()
+  switch (ext) {
+    case 'txt':
+      return 'text/plain'
+    case 'html':
+      return 'text/html'
+    case 'css':
+      return 'text/css'
+    case 'js':
+      return 'application/javascript'
+    case 'json':
+      return 'application/json'
+    case 'jpg':
+    case 'jpeg':
+      return 'image/jpeg'
+    case 'png':
+      return 'image/png'
+    case 'gif':
+      return 'image/gif'
+    case 'mp3':
+      return 'audio/mpeg'
+    case 'ogg':
+      // https://developer.mozilla.org/en-US/docs/Web/HTTP/Configuring_servers_for_Ogg_media
+      return 'application/ogg'
+    case 'opus':
+      return 'audio/opus'
+    case 'm4a':
+      // https://stackoverflow.com/q/39885749
+      return 'audio/mp4'
+    default:
+      return null
+  }
 }
