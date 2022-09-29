@@ -1,14 +1,38 @@
+#header {
+  position: sticky;
+  top: 0;
+}
+
 #error {
   background-color: red;
   color: white;
   padding: 3px;
   display: none; /* initially hidden */
-  position: sticky;
-  top: 0;
   /* define overflow so the floating button stays in the div
   https://stackoverflow.com/q/16041229 */
   overflow: hidden;
 }
-#error > button {
+
+#music {
+  padding: 3px;
+  background-color: black;
+  display: none; /* initially hidden */
+}
+#music >.title {
+  color: white;
+}
+
+.song {
+  color: green;
+}
+
+.file {
+  margin-top: 8px;
+}
+
+.x {
+  padding: 8px;
+  border: none;
   float: right;
+  text-align: center;
 }
