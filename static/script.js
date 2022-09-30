@@ -1,3 +1,5 @@
+const playlist = []
+
 async function ls() {
   try {
     const route = hash()
@@ -73,6 +75,7 @@ function fileClicked(event) {
   const path = event.target.getAttribute('data-path')
   if (isAudioFile(path)) {
     playAudio(path)
+    queueFollowing(event.target)
   }
 }
 
@@ -96,10 +99,11 @@ function playAudio(path) {
   musicDiv.innerHTML = '' // remove existing
   const titleDiv = document.createElement('div')
   titleDiv.classList.add('title')
-  titleDiv.innerText = path
+  titleDiv.innerText = path.split('/').pop()
   const audio = document.createElement('audio')
   audio.setAttribute('controls', '')
   audio.setAttribute('src', '/files'+path)
+  audio.onended = onAudioEnded
   const x = document.createElement('button')
   x.classList.add('x')
   x.innerText = 'X'
@@ -112,6 +116,23 @@ function playAudio(path) {
   musicDiv.appendChild(x)
   musicDiv.style.display = 'block' // show it
   audio.play()
+}
+
+function queueFollowing(element) {
+  playlist.length = 0 // clear it first
+  let next = element
+  while (next=next.nextElementSibling) {
+    var path = next.getAttribute('data-path')
+    if (isAudioFile(path)) {
+      playlist.push(path)
+    }
+  }
+}
+
+function onAudioEnded(event) {
+  if (playlist.length) {
+    playAudio(playlist.shift())
+  }
 }
 
 (async function() {
