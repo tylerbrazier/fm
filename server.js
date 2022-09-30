@@ -1,9 +1,10 @@
 const http = require('node:http')
 const fs = require('node:fs/promises')
-const os = require('node:os')
+const { homedir } = require('node:os')
+const { join } = require('node:path')
 
 const port = 8080
-const root = os.homedir()
+const root = homedir()
 const filesPrefix = '/files'
 const staticDir = __dirname+'/static'
 
@@ -39,11 +40,22 @@ async function sendFile(filepath, res) {
 async function ls(path, res) {
   const opts = {withFileTypes:true}
   const dirents = await fs.readdir(path, opts)
-  const files = dirents.map(d => {
-    if (d.isDirectory()) return d.name+'/'
-    else return d.name
-  })
-  sendJson(files, res)
+  const fileNames = []
+  for (const d of dirents) {
+    if (d.isDirectory()) {
+      fileNames.push(d.name+'/')
+    } else if (d.isSymbolicLink()) {
+      const stats = await fs.stat(join(path,d.name))
+      if (stats.isDirectory()) {
+        fileNames.push(d.name+'/')
+      } else {
+        fileNames.push(d.name)
+      }
+    } else {
+      fileNames.push(d.name)
+    }
+  }
+  sendJson(fileNames, res)
 }
 
 function handleErr(err, res) {
