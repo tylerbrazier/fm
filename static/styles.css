@@ -18,8 +18,12 @@
   background-color: black;
   display: none; /* initially hidden */
 }
-#music >.title {
+#music > .info {
   color: white;
+}
+#music > .controls {
+  display: flex;
+  flex-wrap: wrap;
 }
 
 .song {
@@ -30,9 +34,7 @@
   margin-top: 8px;
 }
 
-.x {
-  padding: 8px;
+button {
+  padding: 10px;
   border: none;
-  float: right;
-  text-align: center;
 }
