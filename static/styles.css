@@ -20,6 +20,7 @@
 }
 #music > .info {
   color: white;
+  overflow-wrap: break-word;
 }
 #music > .controls {
   display: flex;

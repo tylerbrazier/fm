@@ -70,8 +70,10 @@ window.onhashchange = async () => {
 function fileClicked(event) {
   const path = event.target.getAttribute('data-path')
   if (isAudioFile(path)) {
-    playAudio(path)
+    // queue first so we can update the playlist info
+    // properly in playAudio()
     queueFollowing(event.target)
+    playAudio(path)
   }
 }
 
@@ -88,6 +90,9 @@ function playAudio(path) {
   const controlsDiv = musicDiv.querySelector('.controls')
   const info = musicDiv.querySelector('.info')
   info.innerText = path.split('/').pop()
+  if (playlist.length) {
+    info.innerText += ` (q:${playlist.length})`
+  }
   const prevAudio = controlsDiv.querySelector('audio')
   const audio = prevAudio || document.createElement('audio')
   audio.setAttribute('controls', '')
