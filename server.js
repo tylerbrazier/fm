@@ -23,6 +23,12 @@ async function onRequest(req, res) {
       const path = root+url.pathname.slice(filesPrefix.length)
       if (path.endsWith('/')) await ls(path, res)
       else await sendFile(path, res)
+    } else if (url.pathname === '/quit') {
+      res.end()
+      server.close((err) => {
+        if (err) console.error(err)
+        process.exit()
+      })
     } else {
       await sendFile(staticDir+url.pathname, res)
     }

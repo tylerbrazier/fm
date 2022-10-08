@@ -12,8 +12,8 @@
   </head>
   <body>
     <div id="header">
-      <div id="error">
-        <span class="message"></span>
+      <div class="message hidden">
+        <span class="text"></span>
         <button class="x">X</button>
       </div>
       <div id="music">
@@ -21,6 +21,17 @@
         <div class="controls">
           <button class="next">&gt;</button>
           <button class="x">X</button>
+        </div>
+      </div>
+    </div>
+    <div id="top">
+      <div>
+        <button id="toggle-options">≡</button>
+        <span id="cwd"></span>
+      </div>
+      <div id="options" class="hidden">
+        <div class="option">
+          <button id="quit">Quit</button>
         </div>
       </div>
     </div>

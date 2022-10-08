@@ -28,8 +28,9 @@ async function ls() {
       }
       filesDiv.appendChild(fileDiv)
     })
+    document.querySelector('#cwd').innerText = route
   } catch (err) {
-    handleErr(err)
+    showMessage(err)
   }
 }
 
@@ -40,16 +41,17 @@ async function api(route) {
   return json
 }
 
-function handleErr(err) {
-  const errDiv = document.querySelector('#error')
-  const msgDiv = errDiv.querySelector('.message')
-  msgDiv.innerText = err.message
-  const x = errDiv.querySelector('.x')
-  x.onclick = () => {
-    errDiv.style.display = 'none'
-    msgDiv.innerText = ''
+function showMessage(what) {
+  const msgDiv = document.querySelector('.message')
+  const textDiv = msgDiv.querySelector('.text')
+  if (what instanceof Error) {
+    textDiv.innerText = what.message
+    msgDiv.classList.add('error')
+  } else {
+    textDiv.innerText = what
+    msgDiv.classList.remove('error')
   }
-  errDiv.style.display = 'block' // show it
+  msgDiv.classList.remove('hidden')
 }
 
 function hash() {
@@ -131,6 +133,32 @@ function nextSong() {
   if (playlist.length) {
     playAudio(playlist.shift())
   }
+}
+
+async function quit() {
+  try {
+    const resp = await fetch('/quit')
+    if (!resp.ok) {
+      return showMessage(Error(resp.statusText))
+    }
+    document.querySelector('#top').remove()
+    document.querySelector('#music').remove()
+    document.querySelector('#files').remove()
+    window.onhashchange = null
+    showMessage('Bye!')
+  } catch (err) {
+    showMessage(err)
+  }
+}
+
+document.querySelector('.message .x').onclick = () => {
+  document.querySelector('.message').classList.add('hidden')
+}
+document.querySelector('#toggle-options').onclick = () => {
+  document.querySelector('#options').classList.toggle('hidden')
+}
+document.querySelector('#quit').onclick = async () => {
+  await quit()
 }
 
 (async function() {

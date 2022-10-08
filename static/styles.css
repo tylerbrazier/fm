@@ -3,14 +3,13 @@
   top: 0;
 }
 
-#error {
-  background-color: red;
+.message {
+  background-color: darkorange;
   color: white;
   padding: 3px;
-  display: none; /* initially hidden */
-  /* define overflow so the floating button stays in the div
-  https://stackoverflow.com/q/16041229 */
-  overflow: hidden;
+}
+.message.error {
+  background-color: red;
 }
 
 #music {
@@ -27,12 +26,25 @@
   flex-wrap: wrap;
 }
 
+#top {
+  background-color: aquamarine;
+  padding: 2px;
+}
+
+.option {
+  padding-top: 2px;
+}
+
 .song {
   color: green;
 }
 
 .file {
   margin-top: 8px;
+}
+
+.hidden {
+  display: none;
 }
 
 button {
