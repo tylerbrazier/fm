@@ -12,3 +12,9 @@ when that's supported on mobile.
 
 	npx nodemon server.js
 	npx eslint .
+
+## Installing
+
+Currently just on Android using Termux.
+
+	./install.sh

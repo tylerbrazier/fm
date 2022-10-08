@@ -8,6 +8,7 @@ const root = homedir()
 const filesPrefix = '/files'
 const staticDir = __dirname+'/static'
 
+console.log('Starting server...')
 const server = http.createServer()
 server.on('request', onRequest)
 server.listen(port, () => console.log('Listening on '+port))
