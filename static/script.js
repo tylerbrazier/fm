@@ -78,6 +78,7 @@ function fileClicked(event) {
 }
 
 function isAudioFile(path) {
+  if (!path) return false
   const ext = path.split('.').pop()
   const musicExts = [
     'mp3', 'ogg', 'opus', 'm4a'
